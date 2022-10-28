@@ -12,7 +12,7 @@ namespace Application.IServices
         
         bool AddToken(AddTokenDTO addTokenDTO);
         
-        public Task GetAuthTokensAsync(string code, string realmId);
+        public Task GetAuthTokensAsync(string code, string realmId, Guid AccountId);
 
         public TokenDTO GetLatestQbAccessToken();
 

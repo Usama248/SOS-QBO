@@ -15,10 +15,10 @@ namespace Data.DBContext
 
         public DbSet<Account> AuthDetails { get; set; }
         public DbSet<AuthToken> AuthTokens { get; set; }
-        //public DbSet<SyncingInformation> SyncingInformation { get; set; }
-        //public DbSet<SyncingJob> SyncingJob { get; set; }
-        //public DbSet<SyncingJobEntity> SyncingJobEntity { get; set; }
-        //public DbSet<SyncingLog> SyncingLog { get; set; }
+        public DbSet<SyncingInformation> SyncingInformation { get; set; }
+        public DbSet<SyncingJob> SyncingJob { get; set; }
+        public DbSet<SyncingJobEntity> SyncingJobEntity { get; set; }
+        public DbSet<SyncingLog> SyncingLog { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

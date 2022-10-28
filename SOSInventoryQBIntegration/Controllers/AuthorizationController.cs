@@ -25,7 +25,7 @@ namespace SOSInventoryQBIntegration.Controllers
             return View(resp);
         }
 
-        public IActionResult QBAuth([FromQuery] string code, string realmId)
+        public async Task<IActionResult> QBAuth([FromQuery] string code, string realmId)
         {
 
             QBAddAuthCodeDTO qBAddAuthCodeDTO = new QBAddAuthCodeDTO()
@@ -35,7 +35,13 @@ namespace SOSInventoryQBIntegration.Controllers
                 Type = Common.Enums.CompanyTypeEnum.QB,
             };
             var authCodeResp = _qBAuthService.AddQBAuthCode(qBAddAuthCodeDTO);
-            var authTokenResp = _qBAuthService.GetAuthTokensAsync(code, realmId);  //id, code, compnay name
+            if (authCodeResp.Status is 200)
+            {
+                await _qBAuthService.GetAuthTokensAsync(code, realmId, authCodeResp.Data.Id.Value);  //id, code, compnay name
+            }
+            else { 
+ 
+            }
             return View();
         }
     }

@@ -28,6 +28,12 @@ namespace Infrastructure
 
             services.AddScoped<ISOSAuthService, SOSAuthService>();
             services.AddScoped<IQBAuthService, QBAuthService>();
+            services.AddScoped<IQBItemsService, QBItemsService>();
+            services.AddScoped<ISSOItemsService, SSOItemsService>();
+            services.AddScoped<IDataSyncing, DataSyncing>();
+
+
+
 
             #endregion Services
 

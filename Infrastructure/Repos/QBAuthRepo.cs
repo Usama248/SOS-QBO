@@ -18,6 +18,7 @@ namespace Infrastructure.Repos
             Account account = new Account()
             {
                  Code = qBAddAuthCodeDTO.AuthCode,
+                 CompanyId = qBAddAuthCodeDTO.RealMId,
                  CompanyName = qBAddAuthCodeDTO.RealMId,
                  CreatedDate = DateTime.Now,
                  CreatedDateUTC = DateTime.UtcNow,

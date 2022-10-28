@@ -41,7 +41,7 @@ namespace Infrastructure.Services
             return new ResponseDTO<AuthDetailsDTO> { Data = authDetailsDTO, Message = "Added Successfully", Status = 200 };
         }
 
-        public async Task GetAuthTokensAsync(string code, string realmId)
+        public async Task GetAuthTokensAsync(string code, string realmId, Guid AccountId)
         {
 
             OAuth2Client auth2Client = new OAuth2Client(
@@ -59,6 +59,7 @@ namespace Infrastructure.Services
 
             AddTokenDTO qBToken = new AddTokenDTO()
             {
+                AccountId = AccountId,
                 AccessToken = access_token,
                 RefreshToken = refresh_token,
                 AccessTokenExpireIn = access_token_expires_at.ToString(),
