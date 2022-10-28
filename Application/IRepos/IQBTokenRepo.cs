@@ -6,5 +6,9 @@ namespace Application.IRepos
     {
         public bool AddQbToken(AddTokenDTO addTokenDTO);
         public TokenDTO GetLatestQbToken();
+
+        public (bool qbConnection, bool sosConnection) IsBothUsersLoggedIn();
+
+
     }
 }

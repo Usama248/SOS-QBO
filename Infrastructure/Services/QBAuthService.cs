@@ -11,12 +11,11 @@ namespace Infrastructure.Services
     public class QBAuthService : IQBAuthService
     {
         private readonly QBAuthDTO _QBAuthDTO;
-        private readonly IQBAuthRepo _qBAuthRepository;
         private readonly IQBTokenRepo _qBTokenRepo;
+        private readonly IQBAuthRepo _qBAuthRepo;
 
-        public QBAuthService(IOptions<QBAuthDTO> QBAuthDTO, IQBAuthRepo qBAuthRepository, IQBTokenRepo qBTokenRepo)
+        public QBAuthService(IOptions<QBAuthDTO> QBAuthDTO,  IQBTokenRepo qBTokenRepo, IQBAuthRepo qBAuthRepo)
         {
-            _qBAuthRepository = qBAuthRepository;
             _QBAuthDTO = new Common.DTOs.QB.Auth.QBAuthDTO
             {
                 ClientId = QBAuthDTO.Value.ClientId,
@@ -25,12 +24,13 @@ namespace Infrastructure.Services
                 RedirectURL = QBAuthDTO.Value.RedirectURL,
             };
             _qBTokenRepo = qBTokenRepo;
-        }
+            _qBAuthRepo = qBAuthRepo;
 
+        }
         public ResponseDTO<AuthDetailsDTO> AddQBAuthCode(QBAddAuthCodeDTO qBAddAuthCodeDTO)
         {
-            _qBAuthRepository.Add(qBAddAuthCodeDTO);
-            var data = _qBAuthRepository.GetLatestAuthDetails();
+            _qBAuthRepo.Add(qBAddAuthCodeDTO);
+            var data = _qBAuthRepo.GetLatestAuthDetails();
             AuthDetailsDTO authDetailsDTO = new AuthDetailsDTO
             {
                 Code = data.Code,
@@ -40,9 +40,19 @@ namespace Infrastructure.Services
 
             return new ResponseDTO<AuthDetailsDTO> { Data = authDetailsDTO, Message = "Added Successfully", Status = 200 };
         }
+     
 
-        public async Task GetAuthTokensAsync(string code, string realmId, Guid AccountId)
+        public async Task GetAuthTokensAsync(string code, string realmId)
         {
+            QBAddAuthCodeDTO authCodeDTO = new QBAddAuthCodeDTO
+            {
+                AuthCode = code,
+                RealMId = realmId,
+                Type = Common.Enums.CompanyTypeEnum.QB
+            };
+
+
+            var qbAuthResp = _qBAuthRepo.Add(authCodeDTO);
 
             OAuth2Client auth2Client = new OAuth2Client(
               _QBAuthDTO.ClientId, _QBAuthDTO.ClientSecret,
@@ -59,20 +69,17 @@ namespace Infrastructure.Services
 
             AddTokenDTO qBToken = new AddTokenDTO()
             {
-                AccountId = AccountId,
-                AccessToken = access_token,
+               AccessToken = access_token,
                 RefreshToken = refresh_token,
-                AccessTokenExpireIn = access_token_expires_at.ToString(),
+                AccessTokenExpireIn = access_token_expires_at,
                 RefereshTokenExpiresIn = refresh_token_expires_at.ToString(),
+                AccountId = (Guid)qbAuthResp.AddedId,
             };
 
-            var resp = this.AddToken(qBToken); 
+            var resp = _qBTokenRepo.AddQbToken(qBToken);
         }
 
-        public bool AddToken(AddTokenDTO addTokenDTO)
-        {
-           return _qBTokenRepo.AddQbToken(addTokenDTO);
-        }
+       
 
         public string GetAuthorizationURL()
         {
@@ -80,6 +87,8 @@ namespace Infrastructure.Services
             OAuth2Client auth2Client = new OAuth2Client(
                _QBAuthDTO.ClientId, _QBAuthDTO.ClientSecret,
                _QBAuthDTO.RedirectURL, _QBAuthDTO.Environment);
+
+
 
             //Some QB pre written code.
             List<OidcScopes> scopes = new List<OidcScopes>();
@@ -93,7 +102,6 @@ namespace Infrastructure.Services
             {
                 return "";
             }
-
         }
 
         public TokenDTO GetLatestQbAccessToken()

@@ -13,33 +13,38 @@ namespace Infrastructure.Repos
         {
             _appDbContext = appDbContext;
         }
-        public ResponseDTO<AddTokenDTO> AddToken(AddTokenDTO addTokenDTO)
+
+        public ResponseDTO<TokenDTO> AddToken(TokenDTO addTokenDTO)
         {
             AuthToken authToken = new AuthToken()
             {
-                AccountId = addTokenDTO.AccountId,
-                AccessToken = addTokenDTO.AccessToken,
-                RefreshToken = addTokenDTO.RefreshToken,
-                ExpiresIn = addTokenDTO.AccessTokenExpireIn,
-                Type = addTokenDTO.Type,
+                AccessToken = addTokenDTO.access_token,
+                RefreshToken = addTokenDTO.refresh_token,
+                ExpiresIn = addTokenDTO.expires_in,
+                Type = addTokenDTO.token_type,
+                CompanyTypeEnum = addTokenDTO.company_type,
                 IsActive = true,
                 CreatedDate = DateTime.Now,
                 CreatedDateUTC = DateTime.UtcNow,
             };
 
-            var previousActiveRecords = _appDbContext.AuthTokens.Where(x => x.IsActive == true).ToList();
-            if(previousActiveRecords.Count == 0)
+            var previousActiveRecords = _appDbContext
+                .AuthTokens.Where(x => x.IsActive == true && x.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.SOS)
+                .ToList();
+
+            if (previousActiveRecords.Count == 0)
             {
                 _appDbContext.AuthTokens.Add(authToken);
-            } else
+            }
+            else
             {
                 previousActiveRecords.ForEach(x => x.IsActive = false);
+                _appDbContext.UpdateRange(previousActiveRecords);
                 _appDbContext.AuthTokens.Add(authToken);
             }
             _appDbContext.SaveChanges();
-            return new ResponseDTO<AddTokenDTO> { Data = addTokenDTO, Message = "Added Successfully", Status = 200 };
+            return new ResponseDTO<TokenDTO> { Data = addTokenDTO, Message = "Added Successfully", Status = 200 };
         }
-
         public TokenDTO GetLatestToken()
         {
             var latestToken = _appDbContext.AuthTokens.Where(x => x.IsActive == true).FirstOrDefault();
@@ -51,5 +56,8 @@ namespace Infrastructure.Repos
                 expires_in = latestToken.ExpiresIn,
             };
         }
+
+
+
     }
 }

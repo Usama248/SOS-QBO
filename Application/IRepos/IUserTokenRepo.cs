@@ -5,7 +5,7 @@ namespace Application.IRepos
 {
     public interface IUserTokenRepo
     {
-        public ResponseDTO<AddTokenDTO> AddToken(AddTokenDTO addTokenDTO);
+        public ResponseDTO<TokenDTO> AddToken(TokenDTO addTokenDTO);
         public TokenDTO GetLatestToken();
     }
 }

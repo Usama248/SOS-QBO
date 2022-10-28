@@ -15,36 +15,19 @@ namespace Infrastructure.Services
         private readonly IOptions<SOSAppCredentialsDTO> _SOSAppCredentialsDTO;
         private readonly IOptions<SOSAccessTokenCredentialsDTO> _SOSAccessTokenCredentialsDTO;
 
-        private readonly IUserAuthRepo _userAuthRepo;
+        //private readonly IUserAuthRepo _userAuthRepo;
         private readonly IUserTokenRepo _userTokenRepo;
 
 
-        public SOSAuthService(IOptions<SOSAppCredentialsDTO> SOSAppCredentialsDTO, IUserAuthRepo userAuthRepo
+        public SOSAuthService(IOptions<SOSAppCredentialsDTO> SOSAppCredentialsDTO
             , IOptions<SOSAccessTokenCredentialsDTO> SOSAccessTokenCredentialsDTO
             , IUserTokenRepo userTokenRepo)
         {
             _SOSAppCredentialsDTO = SOSAppCredentialsDTO;
-            _userAuthRepo = userAuthRepo;
             _SOSAccessTokenCredentialsDTO = SOSAccessTokenCredentialsDTO;
             _userTokenRepo = userTokenRepo;
         }
 
-        public ResponseDTO<AuthDetailsDTO> AddSOSAuthCode(string code)
-        {
-            AuthDetailsDTO authDetailsDTO = new AuthDetailsDTO()
-            {
-                Code = code,
-                Type = CompanyTypeEnum.SOS,
-            };
-            var resp = _userAuthRepo.AddAuthDetail(authDetailsDTO);
-
-            return resp;
-        }
-
-        public AuthCodeDTO GetLatestAuthCode()
-        {
-           return _userAuthRepo.GetLatestAuthCode(Common.Enums.CompanyTypeEnum.SOS);
-        }
 
         public string GetAuthCodeUrl()
         {
@@ -55,7 +38,7 @@ namespace Infrastructure.Services
         public TokenDTO GenerateAccessTokenFromAuthorizationCode(string code)
         {
 
-            SOSAccessTokenCredentialsDTO sOSAccessTokenCredentialsDTO = _SOSAccessTokenCredentialsDTO.Value; 
+            SOSAccessTokenCredentialsDTO sOSAccessTokenCredentialsDTO = _SOSAccessTokenCredentialsDTO.Value;
             //POST https://api.sosinventory.com/oauth2/token
             var client = new RestClient(new RestClientOptions(sOSAccessTokenCredentialsDTO.request));
 
@@ -79,7 +62,12 @@ namespace Infrastructure.Services
             var queryResult = client.Execute(request);
             TokenDTO tokenDTO = JsonConvert.DeserializeObject<TokenDTO>(queryResult.Content);
 
-            //Return tokens
+            tokenDTO.company_type = CompanyTypeEnum.SOS;
+
+            //Not add the access token of sos into db
+            var resp = _userTokenRepo.AddToken(tokenDTO);
+            
+            //token
             return tokenDTO;
         }
 
@@ -89,7 +77,7 @@ namespace Infrastructure.Services
             return new SOSAppCredentialsDTO
             {
                 Authorize = sOSAppCredentialsDTO.Authorize,
-                ClientId = sOSAppCredentialsDTO.ClientId,   
+                ClientId = sOSAppCredentialsDTO.ClientId,
                 ClientSecret = sOSAppCredentialsDTO.ClientSecret,
                 RedirectUrl = sOSAppCredentialsDTO.RedirectUrl,
                 ResponseType = sOSAppCredentialsDTO.ResponseType,
@@ -99,20 +87,10 @@ namespace Infrastructure.Services
             };
         }
 
-        public ResponseDTO<TokenDTO> AddTokens(TokenDTO tokenDTO, Guid AccountId)
+        public TokenDTO GetLatestActiveAccessToken()
         {
-            AddTokenDTO addTokenDTO = new AddTokenDTO
-            {
-                AccountId = AccountId,
-                AccessToken = tokenDTO.access_token,
-                AccessTokenExpireIn = tokenDTO.expires_in,
-                RefreshToken = tokenDTO.refresh_token,
-                Type = tokenDTO.token_type
-            };
-
-             _userTokenRepo.AddToken(addTokenDTO);
-            return new ResponseDTO<TokenDTO> { Data = tokenDTO, Message = "Added Successfully", Status = 200 };
-
+            return _userTokenRepo.GetLatestToken();
         }
+
     }
 }

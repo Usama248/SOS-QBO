@@ -18,11 +18,9 @@ namespace SOSInventoryQBIntegration.Controllers
         public IActionResult SOSAuth([FromQuery] string code)
         {
             var value = code;
-            var resp = _sOSAuthService.AddSOSAuthCode(value);                                               
-            var latestAuthCode = _sOSAuthService.GetLatestAuthCode();                                       
-            var Token = _sOSAuthService.GenerateAccessTokenFromAuthorizationCode(latestAuthCode.Code);      
-            var addedToken = _sOSAuthService.AddTokens(Token, (Guid)resp.Data.Id);
-            return View(resp);
+            var token = _sOSAuthService.GenerateAccessTokenFromAuthorizationCode(code);      
+            var accessTokenGet = _sOSAuthService.GetLatestActiveAccessToken();
+            return View();
         }
 
         public async Task<IActionResult> QBAuth([FromQuery] string code, string realmId)
@@ -37,7 +35,7 @@ namespace SOSInventoryQBIntegration.Controllers
             var authCodeResp = _qBAuthService.AddQBAuthCode(qBAddAuthCodeDTO);
             if (authCodeResp.Status is 200)
             {
-                await _qBAuthService.GetAuthTokensAsync(code, realmId, authCodeResp.Data.Id.Value);  //id, code, compnay name
+                await _qBAuthService.GetAuthTokensAsync(code, realmId);  //id, code, compnay name
             }
             else { 
  

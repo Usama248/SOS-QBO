@@ -22,59 +22,62 @@ namespace Infrastructure.Repos
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-
                 var dbContext = scope.ServiceProvider.GetService<AppDBContext>();
 
-                var accountId = dbContext.AuthDetails.Where(x => x.IsActive == true && x.Type == Common.Enums.CompanyTypeEnum.QB).Select(x => x.Id).FirstOrDefault();
                 AuthToken authToken = new AuthToken()
                 {
+                    CompanyId = addTokenDTO.AccountId,
                     AccessToken = addTokenDTO.AccessToken,
-                    AccountId = addTokenDTO.AccountId,
                     RefreshToken = addTokenDTO.RefreshToken,
                     ExpiresIn = addTokenDTO.AccessTokenExpireIn,
                     CreatedDate = DateTime.Now,
                     CreatedDateUTC = DateTime.UtcNow,
-                    Type = "Bearer",
+                    CompanyTypeEnum = Common.Enums.CompanyTypeEnum.QB,
+                    Type = "bearer",
                     IsActive = true,
                 };
 
-                var previousQBActiveTokenId = dbContext.AuthTokens.Where(x => x.IsActive == true).Select(x => x.Id).FirstOrDefault();
+                var previousQBActiveTokenId = dbContext.AuthTokens
+                    .Where(x => x.IsActive == true && x.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.QB)
+                    .Select(x => x.Id)
+                    .FirstOrDefault();
 
                 if (previousQBActiveTokenId != Guid.Empty)
-                {                   
+                {
                     var rec = dbContext.AuthTokens.Where(x => x.Id == previousQBActiveTokenId).FirstOrDefault();
                     rec.IsActive = false;
                     dbContext.AuthTokens.Update(rec);
                     dbContext.AuthTokens.Add(authToken);
-                    dbContext.SaveChanges();
                 }
                 else
                 {
                     dbContext.AuthTokens.Add(authToken);
-                    dbContext.SaveChanges();
                 }
+                dbContext.SaveChanges();
+
             }
             return true;
         }
 
         public TokenDTO GetLatestQbToken()
         {
-            Guid latestQbAccessToken = _appDBContext.AuthDetails
-                .Where(x => x.IsActive == true && x.Type == Common.Enums.CompanyTypeEnum.QB)
-                .Select(x => x.Id)
-                .FirstOrDefault();
-
-
-            var token = _appDBContext.AuthTokens.Where(x => x.AccountId == latestQbAccessToken).FirstOrDefault() != null ?
-                 _appDBContext.AuthTokens.Where(x => x.AccountId == latestQbAccessToken).FirstOrDefault() : new AuthToken();
-
+            var token = _appDBContext.AuthTokens.Where(x => x.IsActive == true && x.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.QB).FirstOrDefault();
             return new TokenDTO()
             {
                 access_token = token.AccessToken,
                 refresh_token = token.RefreshToken,
                 expires_in = token.ExpiresIn,
-                token_type = token.Type
+                token_type = token.Type,
+                company_type = Common.Enums.CompanyTypeEnum.QB,
             };
+        }
+
+        public (bool qbConnection, bool sosConnection) IsBothUsersLoggedIn()
+        {
+            var tokens = _appDBContext.AuthTokens
+                .Where(x => x.IsActive == true && x.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.SOS || x.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.QB).ToList();
+
+            return (tokens.Any(d => d.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.QB), tokens.Any(d => d.CompanyTypeEnum == Common.Enums.CompanyTypeEnum.SOS));
         }
     }
 }

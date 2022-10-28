@@ -17,10 +17,9 @@ namespace Infrastructure
         {
             #region Repos
 
-            services.AddScoped<IUserAuthRepo, UserAuthRepo>();
             services.AddScoped<IUserTokenRepo, UserTokenRepo>();
-            services.AddScoped<IQBAuthRepo, QBAuthRepo>();
             services.AddScoped<IQBTokenRepo, QBTokenRepo>();
+            services.AddScoped<IQBAuthRepo, QBAuthRepo>();
 
             #endregion Repos
 
@@ -34,6 +33,7 @@ namespace Infrastructure
 
 
 
+            services.AddScoped<ISyncService, SyncService > ();
 
             #endregion Services
 

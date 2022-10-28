@@ -21,6 +21,6 @@ namespace Common.DTOs.QB.Auth
     {
         public string AuthCode { get; set; }
         public string RealMId { get; set; }
-        public CompanyTypeEnum Type { get; set; }
+        public CompanyTypeEnum? Type { get; set; }
     }
 }

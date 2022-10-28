@@ -9,11 +9,7 @@ namespace Application.IServices
         string GetAuthorizationURL();
         
         ResponseDTO<AuthDetailsDTO> AddQBAuthCode(QBAddAuthCodeDTO qBAddAuthCodeDTO);
-        
-        bool AddToken(AddTokenDTO addTokenDTO);
-        
-        public Task GetAuthTokensAsync(string code, string realmId, Guid AccountId);
-
+        public Task GetAuthTokensAsync(string code, string realmId);
         public TokenDTO GetLatestQbAccessToken();
 
     }

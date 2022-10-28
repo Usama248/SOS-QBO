@@ -10,12 +10,15 @@ namespace SOSInventoryQBIntegration.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ISOSAuthService _sOSAuthService;
         private readonly IQBAuthService _qBAuthService;
+        private readonly ISyncService _syncService;
 
-        public HomeController(ILogger<HomeController> logger, ISOSAuthService sOSAuthService, IQBAuthService qBAuthService)
+        public HomeController(ILogger<HomeController> logger, ISOSAuthService sOSAuthService, IQBAuthService qBAuthService, ISyncService syncService)
         {
             _logger = logger;
+            _syncService = syncService;
             _sOSAuthService = sOSAuthService;
             _qBAuthService = qBAuthService;
+
         }
 
         [HttpGet("Home/QBCallback")]
@@ -33,6 +36,17 @@ namespace SOSInventoryQBIntegration.Controllers
         }
 
         public IActionResult Index()
+        {
+            var connection = _syncService.IsBothTypesLoggedIn();
+
+            ViewBag.qbConnection = connection.qbConnection;
+            ViewBag.sosConnection = connection.sosConnection;
+
+            return View();
+        }
+
+
+        public IActionResult Sync()
         {
             return View();
         }

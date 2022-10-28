@@ -21,16 +21,16 @@ namespace Infrastructure.Services
             var SSOItemList = await _SSOItemsService.getAllSSOItemsAsync();
             try
             {
-                foreach (var item in SSOItemList.data)
-                {
-                    Item request = new Item
-                    {
-                        Name = item.name,
-                        Description = item.description,
-                        Type = Intuit.Ipp.Data.ItemTypeEnum.NonInventory
-                    };
-                    _QBItemsService.CreateItem(request);
-                };
+                //foreach (var item in SSOItemList.data)
+                //{
+                //    Item request = new Item
+                //    {
+                //        Name = item.name,
+                //        Description = item.description,
+                //        Type = Intuit.Ipp.Data.ItemTypeEnum.NonInventory
+                //    };
+                //    _QBItemsService.CreateItem(request);
+                //};
                 return true;
             }
             catch (Exception ex) { 

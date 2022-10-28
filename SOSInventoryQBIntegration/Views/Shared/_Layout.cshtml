@@ -18,7 +18,11 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
+                    <ul class="navbar-nav flex-grow-1 visually-hidden">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                     </ul>
                     @if (User.Identity.IsAuthenticated)
                     {
 @*                            <button onclick="gotoSOS()" id="BtnLoginToSOS" style="float: right;">Login SOS</button>           
@@ -31,12 +35,20 @@
 
                     @if (!User.Identity.IsAuthenticated)
                     { 
-                        <ul class="navbar-nav flex-grow-1">
+                        <ul class="navbar-nav flex-grow-1 visually-hidden">
                              <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
                         </ul>
                     }
+
+
+
+
+
+
+
+
 
 
                    @* <ul class="navbar-nav flex-grow-1">
@@ -69,9 +81,6 @@
                     {
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         </ul>
@@ -82,14 +91,6 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-
-
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Adjustments </button>
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Build </button>
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Customer </button>
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Estimate </button>
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Invoice </button>
-           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Item </button>
             @RenderBody()
         </main>
     </div>

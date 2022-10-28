@@ -13,8 +13,9 @@ namespace Data.DBContext
             _options = options;
         }
 
-        public DbSet<Account> AuthDetails { get; set; }
+
         public DbSet<AuthToken> AuthTokens { get; set; }
+        public DbSet<Account> AuthDetails { get; set; }
         public DbSet<SyncingInformation> SyncingInformation { get; set; }
         public DbSet<SyncingJob> SyncingJob { get; set; }
         public DbSet<SyncingJobEntity> SyncingJobEntity { get; set; }

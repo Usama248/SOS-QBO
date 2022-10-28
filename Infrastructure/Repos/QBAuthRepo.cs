@@ -1,4 +1,5 @@
 ﻿using Application.IRepos;
+using Common.DTOs.QB;
 using Common.DTOs.QB.Auth;
 using Common.DTOs.Shared;
 using Data.DBContext;
@@ -13,7 +14,7 @@ namespace Infrastructure.Repos
         {
             _dbContext = dbContext;
         }
-        public bool Add(QBAddAuthCodeDTO qBAddAuthCodeDTO)
+        public AddQBResponseDTO Add(QBAddAuthCodeDTO qBAddAuthCodeDTO)
         {
             Account account = new Account()
             {
@@ -24,29 +25,40 @@ namespace Infrastructure.Repos
                  CreatedDateUTC = DateTime.UtcNow,
                  IsActive = true,
                  IsConnected = true,
-                 Type = qBAddAuthCodeDTO.Type
+                 Type = (Common.Enums.CompanyTypeEnum)qBAddAuthCodeDTO.Type
             };
-           
-            var previousQbActiveRecords = _dbContext.AuthDetails.Where(x => x.IsActive == true && x.Type == Common.Enums.CompanyTypeEnum.QB).ToList();
 
-            if(previousQbActiveRecords.Count == 0)
+            var previousQbActiveRecord = _dbContext
+                .AuthDetails.Where(x => x.IsActive == true && x.Type == Common.Enums.CompanyTypeEnum.QB)
+                .FirstOrDefault();
+
+            AddQBResponseDTO addQBResponseDTO = new AddQBResponseDTO();
+
+
+            if (previousQbActiveRecord == null)
             {
                 _dbContext.AuthDetails.Add(account);
-            } else
+                addQBResponseDTO.DeletedQBId = Guid.Empty;
+            }
+            else
             {
-                previousQbActiveRecords.ForEach(x => x.IsActive = false);
+                addQBResponseDTO.DeletedQBId = previousQbActiveRecord.Id;
+                previousQbActiveRecord.IsActive = false;
+                _dbContext.AuthDetails.Update(previousQbActiveRecord);
                 _dbContext.AuthDetails.Add(account);
             }
-
             _dbContext.SaveChanges();
-            return true;
+            addQBResponseDTO.AddedId = account.Id;
+
+
+            return addQBResponseDTO;
 
         }
 
         public AuthCodeDTO GetLatestAuthDetails()
         {
             var latestActiveToken = _dbContext.AuthDetails.Where(x => x.IsActive == true && x.Type == Common.Enums.CompanyTypeEnum.QB).FirstOrDefault();
-            if(latestActiveToken == null)
+            if (latestActiveToken == null)
             {
                 return new AuthCodeDTO() { };
             }
@@ -60,3 +72,4 @@ namespace Infrastructure.Repos
         }
     }
 }
+

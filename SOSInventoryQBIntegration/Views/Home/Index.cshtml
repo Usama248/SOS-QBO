@@ -3,56 +3,166 @@
 
 }
 <div id="sosURL" hidden>@ViewBag.URI</div>
-<div class="container">
-    <div class="col-md-12">
-        <div class="col-md-5 float-start">
-            <strong>SOS Inventory</strong>
-            <br />
+
+<div class="col-md-12">
+    <div class="col-md-5 float-start">
+        <strong>SOS Inventory</strong>
+        <br />
+
+
+        @if (ViewBag.sosConnection)
+        {
+            <div class="p-2 alert-success">
+                You are connected to SOS-Inventory.
+            </div>
+            <button onclick="location.href='@Url.Action("QBCallback", "")'" class="btn btn-danger btn-sm float-xxl-end mt-2">Disconnect from SOS Inventory</button>
+
+        }
+        else
+        {
             <div class="p-2 alert-warning">
                 <strong>Note!</strong> You need to connect to your SOS Inventory account.
             </div>
-
             <button onclick="location.href='@Url.Action("SOSAuthentication", "Home")'" class="btn btn-success btn-sm text-white mt-2  float-xxl-end ">Connect to SOS Inventory</button>
-        </div>
-        <div class="col-md-5 float-end">
-            <strong>QuickBooks</strong>
-            <br />
+        }
+
+
+    </div>
+
+
+    <div class="col-md-5 float-end">
+        <strong>QuickBooks</strong>
+        <br />
+
+
+        @if (ViewBag.qbConnection)
+        {
+            <div class="p-2 alert-success">
+                You are connected to QuickBooks.
+            </div>
+            <button onclick="location.href='@Url.Action("QBCallback", "")'" class="btn btn-danger btn-sm float-xxl-end mt-2">Disconnect from QuickBooks</button>
+
+            <div>
+                <br />
+                <br />
+                <br />
+                <button id = "BtnSyncing" onclick="showTable()" class="btn btn-info btn-sm mt-2 float-xxl-end">Start Syncing</button>
+
+            </div>
+
+        }
+        else
+        {
             <div class="p-2 alert-warning">
                 <strong>Note!</strong> You need to connect to your QuickBooks account.
             </div>
-
             <button onclick="location.href='@Url.Action("QBCallback", "")'" class="btn btn-success btn-sm float-xxl-end  text-white mt-2">Connect to QuickBooks</button>
-        </div>
+        }
+
     </div>
-    <div class="col-md-12 row">
-        <div class="col-md-6">
-            <button id="sync_btn" onclick="startSyncData()" class="btn btn-info btn-sm float-xxl-end text-white mt-2">Start Syncing</button>
-        </div>
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <div style="margin-top: 70px">
+    <table class="table table-bordered mt-2" id="tbl">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Type</th>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Item</td>
+                <td>Labor</td>
+                <td><button class="btn btn-sm btn-success">Syned</button></td>
+                <td>Added to QuickBooks</td>
+            </tr>
+
+        </tbody>
+    </table>
+
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
+<script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
 <script>
 
-        function gotoSOS() {
-           var sosAPI = document.getElementById('sosURL').innerHTML;
-           let result = sosAPI.replace("amp", "");
-           let result1 = result.replace("&;", "&");
-           let result2 = result1.replace("&amp;", "&");
-           window.location.replace(result2);
-         }
+        
+        var tbl = document.getElementById("tbl");
 
-         function startSyncData() {
-             $.ajax({
-              type: "POST",
-              url: "@Url.Action("SyncData", "DataSyncing")",
-              beforeSend: function( xhr ) {
-                  $("#sync_btn").html("Syncing...")
-                  $("#sync_btn").prop("disabled", true);
-              }
-             })
-           .done(function( data ) {
-                  $("#sync_btn").html("Start Syncing")
-                  $("#sync_btn").removeAttr('disabled');
-           });
-         }
+                    tbl.style.display = "none";
+
+        function showTable(){
+            tbl.style.display = "table";
+        }
+
+
+
+    
+       function gotoSOS() {
+          var sosAPI = document.getElementById('sosURL').innerHTML;
+          let result = sosAPI.replace("amp", "");
+          let result1 = result.replace("&;", "&");
+          let result2 = result1.replace("&amp;", "&");
+          window.location.replace(result2);
+        }
+
+        function startSyncData() {
+            $.ajax({
+             type: "POST",
+             url: "@Url.Action("SyncData", "DataSyncing")",
+             beforeSend: function( xhr ) {
+                 $("#sync_btn").html("Syncing...")
+                 $("#sync_btn").prop("disabled", true);
+             }
+            })
+          .done(function( data ) {
+                 $("#sync_btn").html("Start Syncing")
+                 $("#sync_btn").removeAttr('disabled');
+          });
+        }
+
+
+    //if(localStorage.getItem("QB_Authorized") == true && localStorage.getItem("SOS_Authorized") == true){
+    //    var displayButton = document.getElementById("SyncButton");
+    //    displayButton.style.display = 'block'
+    //}
+
+
+    //var sosItem = document.getElementById('sos_logged_in');
+    //var qbItem = document.getElementById('qb_logged_in');
+
+    //if(localStorage.getItem("QB_Authorized") == true){
+    //    qbItem.style.display = "inline-block"
+    //}
+
+    //if(localStorage.getItem("QB_Authorized") == true){
+    //    sosItem.style.display = "inline-block"
+    //}
+
+
+
+
 
 </script>
