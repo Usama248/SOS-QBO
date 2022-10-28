@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+
+}
+<div id="sosURL" hidden>@ViewBag.URI</div>
+
+<div class="col-md-12">
+    <div class="col-md-5 float-start">
+        <strong>SOS Inventory</strong>
+        <br />
+        <div class="p-2 alert-warning">
+            <strong>Note!</strong> You need to connect to your SOS Inventory account.
+        </div>
+
+        <button onclick="location.href='@Url.Action("SOSAuthentication", "Home")'" class="btn btn-success btn-sm text-white mt-2  float-xxl-end ">Connect to SOS Inventory</button>
+    </div>
+    <div class="col-md-5 float-end">
+        <strong>QuickBooks</strong>
+        <br />
+        <div class="p-2 alert-warning">
+            <strong>Note!</strong> You need to connect to your QuickBooks account.
+        </div>
+        
+        <button onclick="location.href='@Url.Action("QBCallback", "")'" class="btn btn-success btn-sm float-xxl-end  text-white mt-2">Connect to QuickBooks</button>
+    </div>
+</div>
+
+<script>
+
+  function gotoSOS() {
+     var sosAPI = document.getElementById('sosURL').innerHTML;
+     let result = sosAPI.replace("amp", "");
+     let result1 = result.replace("&;", "&");
+     let result2 = result1.replace("&amp;", "&");
+     window.location.replace(result2);
+   }
+
+
+</script>

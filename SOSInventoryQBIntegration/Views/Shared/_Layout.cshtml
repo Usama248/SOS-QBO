@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SOS Inventory QuickBooks Integration</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/QBDApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SOS Inventory QuickBooks Integration</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+@*                            <button onclick="gotoSOS()" id="BtnLoginToSOS" style="float: right;">Login SOS</button>           
+*@
+                            @*<input type="button" value="Login SOS" onclick="location.href='@Url.Action("SOSAuthentication", "Home")'" />
+                            <input type="button" value="Login QB" onclick="location.href='@Url.Action("QBCallback", "")'" />
+*@
+                            <button id="BtnLogoutFromSOS" onclick="logoutFromSOS()" style="float: right;">Logout from SoS</button>
+                    }
+
+                    @if (!User.Identity.IsAuthenticated)
+                    { 
+                        <ul class="navbar-nav flex-grow-1">
+                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                        </ul>
+                    }
+
+
+                   @* <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>*@
+                   @* @if (User.Identity.IsAuthenticated)
+                    {
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>*@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <ul class="navbar-nav float-end">
+                                <li class="nav-item">
+                                    <a class="btn btn-sm btn-danger" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                </li>
+                            </ul>
+                        }
+                    @*}*@
+                 @* else
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                        </ul>
+                    } *@
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+
+
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Adjustments </button>
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Build </button>
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Customer </button>
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Estimate </button>
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Invoice </button>
+           <button class="ApiCallButton" asp-controller="Account" asp-action="Login"> Get Item </button>
+            @RenderBody()
+        </main>
+    </div>
+
+    @*<footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - QBDApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+<script>
+  const apiButtons = document.getElementsByClassName('ApiCallButton');
+
+  for (const ApiBtn of apiButtons) {
+    ApiBtn.style.display = 'none';
+  }
+
+  var btnLogout = document.getElementById('BtnLogoutFromSOS');
+  btnLogout.style.display = 'none'
+
+  
+
+
+  var btnLogin = document.getElementById('BtnLoginToSOS');
+  btnLogin.style.display = 'block';
+
+  function gotoSOS() {
+     var sosAPI = document.getElementById('sosURL').innerHTML;
+     let result = sosAPI.replace("amp", "");
+     let result1 = result.replace("&;", "&");
+     let result2 = result1.replace("&amp;", "&");
+     window.location.replace(result2);
+   }
+
+
+   checkSoSLogin();
+
+   function checkSoSLogin(){
+
+        if(localStorage.getItem("sosStatus") == "LoggedIn")
+        {
+            var btnLogout = document.getElementById('BtnLogoutFromSOS');
+            btnLogout.style.display = 'block'
+
+
+              const apiButtons = document.getElementsByClassName('ApiCallButton');
+
+              for (const ApiBtn of apiButtons) {
+                // 👇️ Remove element from DOM
+                ApiBtn.style.display = 'block';
+                // 👇️ hide element (still takes up space on page)
+                // box.style.visibility = 'hidden';
+              }
+
+
+
+            var btnLogin = document.getElementById('BtnLoginToSOS');
+            btnLogin.style.display = 'none';
+        }
+   }
+
+
+   function logoutFromSOS() {
+       localStorage.removeItem("sosStatus");
+       window.location.replace("https://localhost:7266")
+   }
+
+</script>
